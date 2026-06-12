@@ -41,8 +41,8 @@ export default function SetupPage() {
 
       {/* Branding */}
       <div className="flex flex-col items-center gap-4">
-        <div className="w-20 h-20 rounded-3xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
-          <Wallet size={36} className="text-amber-400" strokeWidth={1.5} />
+        <div className="w-20 h-20 rounded-3xl bg-lime-400/15 border border-lime-400/20 flex items-center justify-center">
+          <Wallet size={36} className="text-lime-400" strokeWidth={1.5} />
         </div>
         <div className="text-center">
           <h1 className="font-display text-3xl font-bold text-slate-100">NotiWallet</h1>
@@ -57,7 +57,7 @@ export default function SetupPage() {
             GAS Web App URL
           </label>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Deploy <code className="text-amber-400/80">Code.js</code> ใน Google Apps Script แล้ว copy URL ที่ได้ มาวางที่นี่
+            Deploy <code className="text-lime-400/80">Code.js</code> ใน Google Apps Script แล้ว copy URL ที่ได้ มาวางที่นี่
           </p>
           <textarea
             value={gasUrl}
@@ -76,13 +76,13 @@ export default function SetupPage() {
 
         {/* Single-user mode: show User ID */}
         {!IS_FIREBASE_MODE && localUserId && (
-          <div className="glass p-4 border-amber-500/15 bg-amber-500/[0.04] space-y-2">
-            <p className="text-xs font-semibold text-amber-400">User ID ของคุณ</p>
+          <div className="glass p-4 border-lime-400/15 bg-lime-400/[0.04] space-y-2">
+            <p className="text-xs font-semibold text-lime-400">User ID ของคุณ</p>
             <div className="flex items-center gap-2">
               <p className="font-mono text-xs text-slate-300 break-all flex-1">{localUserId}</p>
               <button
                 onClick={copyUserId}
-                className="shrink-0 pressable p-1.5 text-slate-400 hover:text-amber-400"
+                className="shrink-0 pressable p-1.5 text-slate-400 hover:text-lime-400"
                 aria-label="คัดลอก User ID"
               >
                 {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}

@@ -99,7 +99,7 @@ function ReimburseContent({ user }) {
 
   return (
     <div className="min-h-dvh pb-28">
-      <header className="sticky top-0 z-20 bg-[#080812]/80 backdrop-blur-xl border-b border-white/[0.06] px-4">
+      <header className="sticky top-0 z-20 bg-[#0C0C0A]/95 backdrop-blur-sm border-b border-white/[0.06] px-4">
         <div className="flex items-center h-14 gap-3 max-w-lg mx-auto">
           <button onClick={() => router.back()} className="btn-ghost p-2 -ml-2" aria-label="กลับ">
             <ArrowLeft size={20} />
@@ -111,7 +111,7 @@ function ReimburseContent({ user }) {
       <main className="px-4 pt-4 max-w-lg mx-auto space-y-6">
         {loading ? (
           <div className="flex justify-center pt-10">
-            <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-lime-400/30 border-t-lime-400 rounded-full animate-spin" />
           </div>
         ) : (
           <>
@@ -120,7 +120,7 @@ function ReimburseContent({ user }) {
               <section aria-label="รายการรอเบิก">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-sm font-semibold text-slate-300">รายการรอเบิก</h2>
-                  <button onClick={selectAll} className="btn-ghost text-amber-400 hover:text-amber-300 text-xs">
+                  <button onClick={selectAll} className="btn-ghost text-lime-400 hover:text-lime-300 text-xs">
                     เลือกทั้งหมด
                   </button>
                 </div>
@@ -131,12 +131,12 @@ function ReimburseContent({ user }) {
                       key={t.id}
                       onClick={() => toggleSelect(t.id)}
                       className={`w-full text-left glass pressable px-4 py-3 flex items-center gap-3 transition-colors duration-150 ${
-                        selected.has(t.id) ? "border-amber-500/40 bg-amber-500/5" : ""
+                        selected.has(t.id) ? "border-lime-400/40 bg-lime-400/5" : ""
                       }`}
                       aria-pressed={selected.has(t.id)}
                     >
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-150 ${
-                        selected.has(t.id) ? "border-amber-500 bg-amber-500" : "border-white/20"
+                        selected.has(t.id) ? "border-lime-400 bg-lime-400" : "border-white/20"
                       }`}>
                         {selected.has(t.id) && <Check size={10} className="text-gray-900" strokeWidth={3} />}
                       </div>
@@ -146,7 +146,7 @@ function ReimburseContent({ user }) {
                         </p>
                         <p className="text-xs text-slate-500">{toThaiShortDate(t.date)}</p>
                       </div>
-                      <span className="amount text-sm font-semibold text-amber-300 shrink-0">
+                      <span className="amount text-sm font-semibold text-lime-300 shrink-0">
                         ฿{Number(t.amount).toLocaleString("th-TH")}
                       </span>
                     </button>
@@ -155,10 +155,10 @@ function ReimburseContent({ user }) {
 
                 {/* Close batch panel */}
                 {selected.size > 0 && (
-                  <div className="glass mt-4 p-4 space-y-3 animate-scale-in border-amber-500/20">
+                  <div className="glass mt-4 p-4 space-y-3 animate-scale-in border-lime-400/20">
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-slate-400">{selected.size} รายการ</p>
-                      <p className="amount text-lg font-bold text-amber-300">
+                      <p className="amount text-lg font-bold text-lime-300">
                         ฿{selectedTotal.toLocaleString("th-TH")}
                       </p>
                     </div>
@@ -206,7 +206,7 @@ function ReimburseContent({ user }) {
                             <p className="text-sm font-semibold text-slate-200">{batch.id}</p>
                             <p className="text-xs text-slate-500 mt-0.5">{batch.items.length} รายการ</p>
                           </div>
-                          <p className="amount text-lg font-bold text-amber-300">
+                          <p className="amount text-lg font-bold text-lime-300">
                             ฿{batchTotal.toLocaleString("th-TH")}
                           </p>
                         </div>

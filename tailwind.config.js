@@ -9,13 +9,13 @@ module.exports = {
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
-        bg: "#080812",
-        surface: "rgba(255,255,255,0.05)",
-        border: "rgba(255,255,255,0.08)",
+        bg: "#0C0C0A",
+        surface: "rgba(255,255,255,0.04)",
+        border: "rgba(255,255,255,0.09)",
         accent: {
-          DEFAULT: "#F59E0B",
-          dim: "rgba(245,158,11,0.15)",
-          glow: "rgba(245,158,11,0.3)",
+          DEFAULT: "#A8FF3E",
+          dim: "rgba(168,255,62,0.12)",
+          glow: "rgba(168,255,62,0.20)",
         },
         violet: {
           accent: "#8B5CF6",

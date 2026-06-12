@@ -64,7 +64,7 @@ function ManualForm({ user }) {
   return (
     <div className="min-h-dvh pb-28">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-[#080812]/80 backdrop-blur-xl border-b border-white/[0.06] px-4">
+      <header className="sticky top-0 z-20 bg-[#0C0C0A]/95 backdrop-blur-sm border-b border-white/[0.06] px-4">
         <div className="flex items-center h-14 gap-3 max-w-lg mx-auto">
           <button onClick={() => router.back()} className="btn-ghost p-2 -ml-2" aria-label="กลับ">
             <ArrowLeft size={20} />
@@ -189,20 +189,20 @@ function ManualForm({ user }) {
         <button
           onClick={() => setReimbursable((v) => !v)}
           className={`w-full glass pressable p-4 flex items-center justify-between transition-colors duration-200 ${
-            reimbursable ? "border-amber-500/30 bg-amber-500/5" : ""
+            reimbursable ? "border-lime-400/30 bg-lime-400/5" : ""
           }`}
           aria-pressed={reimbursable}
           role="switch"
         >
           <div>
-            <p className={`text-sm font-medium ${reimbursable ? "text-amber-300" : "text-slate-300"}`}>
+            <p className={`text-sm font-medium ${reimbursable ? "text-lime-300" : "text-slate-300"}`}>
               รอเบิกคืน/รอเพื่อนโอนคืน
             </p>
             <p className="text-xs text-slate-500 mt-0.5">จ่ายเองก่อน รอคนอื่นโอนคืน</p>
           </div>
           <div className={`w-12 h-6 rounded-full border transition-all duration-200 flex items-center px-0.5 ${
             reimbursable
-              ? "bg-amber-500 border-amber-400"
+              ? "bg-lime-400 border-lime-400"
               : "bg-white/10 border-white/20"
           }`}>
             <div className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${

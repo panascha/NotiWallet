@@ -6,10 +6,10 @@
 
 @layer base {
   :root {
-    --accent: #F59E0B;
-    --accent-glow: rgba(245,158,11,0.25);
-    --surface: rgba(255,255,255,0.05);
-    --border: rgba(255,255,255,0.08);
+    --accent: #A8FF3E;
+    --accent-glow: rgba(168,255,62,0.18);
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.09);
     --easing: cubic-bezier(0.16,1,0.3,1);
   }
 
@@ -22,12 +22,7 @@
   }
 
   body {
-    @apply bg-[#080812] text-slate-100 font-sans antialiased;
-    /* ambient gradient blobs */
-    background-image:
-      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(245,158,11,0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 35% at 80% 80%, rgba(139,92,246,0.07) 0%, transparent 60%);
-    background-attachment: fixed;
+    @apply bg-[#0C0C0A] text-slate-100 font-sans antialiased;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -39,9 +34,9 @@
 }
 
 @layer components {
-  /* Glass card */
+  /* Flat surface card — no blur, no blob */
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/[0.08] rounded-2xl;
+    @apply bg-white/[0.04] border border-white/[0.09] rounded-xl;
   }
 
   /* Subtle press scale */
@@ -57,14 +52,14 @@
   /* Input field */
   .field {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-100
-           placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1
-           focus:ring-amber-500/30 transition-colors duration-150 text-[16px];
+           placeholder-slate-500 focus:outline-none focus:border-lime-400/60 focus:ring-1
+           focus:ring-lime-400/30 transition-colors duration-150 text-[16px];
   }
 
   /* Primary CTA button */
   .btn-primary {
-    @apply w-full bg-amber-500 text-gray-900 font-semibold py-4 rounded-2xl
-           pressable hover:bg-amber-400 transition-colors duration-150
+    @apply w-full bg-lime-400 text-zinc-950 font-semibold py-4 rounded-2xl
+           pressable hover:bg-lime-300 transition-colors duration-150
            disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
@@ -78,11 +73,11 @@
   .chip {
     @apply px-4 py-2.5 rounded-xl text-sm font-medium border border-white/10
            bg-white/5 text-slate-300 transition-all duration-150 pressable
-           hover:border-amber-500/40 hover:bg-amber-500/10;
+           hover:border-lime-400/40 hover:bg-lime-400/10;
   }
 
   .chip-active {
-    @apply border-amber-500/60 bg-amber-500/15 text-amber-300;
+    @apply border-lime-400/60 bg-lime-400/15 text-lime-300;
   }
 
   /* Bottom nav safe area */

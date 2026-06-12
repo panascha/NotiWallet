@@ -176,7 +176,7 @@ function HomeContent({ user }) {
   return (
     <div className="min-h-dvh pb-28">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-[#080812]/80 backdrop-blur-xl border-b border-white/[0.06] px-4 pt-safe-top">
+      <header className="sticky top-0 z-20 bg-[#0C0C0A]/95 backdrop-blur-sm border-b border-white/[0.06] px-4 pt-safe-top">
         <div className="flex items-center justify-between h-14 max-w-lg mx-auto">
           <h1 className="font-display text-xl font-bold text-slate-100">NotiWallet</h1>
           <div className="flex items-center gap-1">
@@ -243,18 +243,18 @@ function HomeContent({ user }) {
         {pending.length > 0 && (
           <button
             onClick={() => router.push("/reimburse")}
-            className="w-full text-left glass pressable p-4 border-amber-500/20 bg-amber-500/5 animate-fade-up"
+            className="w-full text-left glass pressable p-4 border-lime-400/20 bg-lime-400/5 animate-fade-up"
             aria-label={`รอเบิก ${pending.length} รายการ ฿${pendingTotal.toLocaleString()}`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-amber-400/80 font-medium mb-1">รอเบิก</p>
-                <p className="amount text-2xl font-bold text-amber-300">
+                <p className="text-xs text-lime-400/80 font-medium mb-1">รอเบิก</p>
+                <p className="amount text-2xl font-bold text-lime-300">
                   ฿{pendingTotal.toLocaleString("th-TH")}
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5">{pending.length} รายการ</p>
               </div>
-              <ChevronRight size={20} className="text-amber-500/60" />
+              <ChevronRight size={20} className="text-lime-400/60" />
             </div>
           </button>
         )}
@@ -326,7 +326,7 @@ function HomeContent({ user }) {
             <p className="text-slate-500">ยังไม่มีรายการ</p>
             <button
               onClick={() => router.push("/manual")}
-              className="mt-4 flex items-center gap-1.5 text-amber-400 text-sm mx-auto pressable hover:text-amber-300"
+              className="mt-4 flex items-center gap-1.5 text-lime-400 text-sm mx-auto pressable hover:text-lime-300"
             >
               <Plus size={16} />
               เพิ่มรายการแรก
@@ -366,7 +366,7 @@ function TransactionRow({ t }) {
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-xs text-slate-500">{t.category}</span>
           {t.reimbursable && !t.batch_id && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-lime-400/15 text-lime-400 border border-lime-400/20">
               รอเบิก
             </span>
           )}

@@ -72,7 +72,7 @@ function ScanContent({ user }) {
 
   return (
     <div className="min-h-dvh pb-28">
-      <header className="sticky top-0 z-20 bg-[#080812]/80 backdrop-blur-xl border-b border-white/[0.06] px-4">
+      <header className="sticky top-0 z-20 bg-[#0C0C0A]/95 backdrop-blur-sm border-b border-white/[0.06] px-4">
         <div className="flex items-center h-14 gap-3 max-w-lg mx-auto">
           <button onClick={() => router.back()} className="btn-ghost p-2 -ml-2" aria-label="กลับ">
             <ArrowLeft size={20} />
@@ -96,11 +96,11 @@ function ScanContent({ user }) {
         {!preview ? (
           <button
             onClick={() => inputRef.current?.click()}
-            className="w-full glass pressable flex flex-col items-center justify-center gap-4 py-16 border-dashed border-white/20 hover:border-amber-500/40 transition-colors duration-200"
+            className="w-full glass pressable flex flex-col items-center justify-center gap-4 py-16 border-dashed border-white/20 hover:border-lime-400/40 transition-colors duration-200"
             aria-label="ถ่ายรูปหรือเลือกรูปสลิป"
           >
-            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <Camera size={28} className="text-amber-400" strokeWidth={1.5} />
+            <div className="w-16 h-16 rounded-2xl bg-lime-400/10 border border-lime-400/20 flex items-center justify-center">
+              <Camera size={28} className="text-lime-400" strokeWidth={1.5} />
             </div>
             <div className="text-center">
               <p className="text-slate-300 font-medium">ถ่ายรูปสลิป</p>
@@ -126,7 +126,7 @@ function ScanContent({ user }) {
             {/* Scanning state */}
             {scanning && (
               <div className="glass p-6 flex flex-col items-center gap-3">
-                <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-lime-400/30 border-t-lime-400 rounded-full animate-spin" />
                 <p className="text-slate-400 text-sm">กำลังอ่านข้อมูล...</p>
               </div>
             )}

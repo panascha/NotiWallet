@@ -26,15 +26,15 @@ export default function BottomNav() {
               aria-label={label}
               aria-current={active ? "page" : undefined}
               className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl pressable transition-colors duration-150 ${
-                active ? "text-amber-400" : "text-slate-500 hover:text-slate-300"
+                active ? "text-lime-400" : "text-slate-500 hover:text-slate-300"
               }`}
             >
               <Icon
                 size={22}
                 strokeWidth={active ? 2.5 : 1.8}
-                className={active ? "drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]" : ""}
+                className={active ? "drop-shadow-[0_0_6px_rgba(168,255,62,0.5)]" : ""}
               />
-              <span className={`text-[10px] font-medium ${active ? "text-amber-400" : ""}`}>
+              <span className={`text-[10px] font-medium ${active ? "text-lime-400" : ""}`}>
                 {label}
               </span>
             </button>

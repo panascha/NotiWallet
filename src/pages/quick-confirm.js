@@ -65,8 +65,8 @@ function QuickConfirmForm({ user }) {
   if (duplicate === "true") {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-center px-6 gap-4">
-        <div className="w-16 h-16 rounded-full bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
-          <AlertCircle size={28} className="text-amber-400" />
+        <div className="w-16 h-16 rounded-full bg-lime-400/15 border border-lime-400/20 flex items-center justify-center">
+          <AlertCircle size={28} className="text-lime-400" />
         </div>
         <p className="text-slate-300 font-medium text-center">รายการนี้บันทึกแล้ว</p>
         <button onClick={() => router.push("/")} className="btn-ghost">กลับหน้าหลัก</button>
@@ -99,14 +99,14 @@ function QuickConfirmForm({ user }) {
                 onClick={() => setCategory(c.id)}
                 className={`glass pressable flex flex-col items-center gap-1.5 py-3 rounded-2xl border transition-all duration-150 ${
                   category === c.id
-                    ? "border-amber-500/50 bg-amber-500/10"
+                    ? "border-lime-400/50 bg-lime-400/10"
                     : "border-white/[0.06] hover:border-white/20"
                 }`}
                 aria-pressed={category === c.id}
                 aria-label={c.label}
               >
                 <span className="text-xl" role="img" aria-hidden="true">{c.emoji}</span>
-                <span className={`text-[10px] font-medium leading-tight text-center ${category === c.id ? "text-amber-300" : "text-slate-400"}`}>
+                <span className={`text-[10px] font-medium leading-tight text-center ${category === c.id ? "text-lime-300" : "text-slate-400"}`}>
                   {c.label}
                 </span>
               </button>
@@ -131,19 +131,19 @@ function QuickConfirmForm({ user }) {
         <button
           onClick={() => setReimbursable((v) => !v)}
           className={`glass pressable p-4 flex items-center justify-between transition-colors duration-200 ${
-            reimbursable ? "border-amber-500/30 bg-amber-500/5" : ""
+            reimbursable ? "border-lime-400/30 bg-lime-400/5" : ""
           }`}
           role="switch"
           aria-pressed={reimbursable}
         >
           <div>
-            <p className={`text-sm font-semibold ${reimbursable ? "text-amber-300" : "text-slate-300"}`}>
+            <p className={`text-sm font-semibold ${reimbursable ? "text-lime-300" : "text-slate-300"}`}>
               รอเบิกคืน/รอเพื่อนโอนคืน
             </p>
             <p className="text-xs text-slate-500 mt-0.5">จ่ายเองก่อน รอคนอื่นโอนคืน</p>
           </div>
           <div className={`w-12 h-6 rounded-full border transition-all duration-200 flex items-center px-0.5 ${
-            reimbursable ? "bg-amber-500 border-amber-400" : "bg-white/10 border-white/20"
+            reimbursable ? "bg-lime-400 border-lime-400" : "bg-white/10 border-white/20"
           }`}>
             <div className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${
               reimbursable ? "translate-x-6" : "translate-x-0"

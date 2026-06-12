@@ -20,7 +20,7 @@ export default function AuthGate({ children }) {
   if (user === undefined) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-lime-400/30 border-t-lime-400 rounded-full animate-spin" />
       </div>
     );
   }
@@ -29,8 +29,8 @@ export default function AuthGate({ children }) {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-center gap-6 px-6">
         <div className="animate-scale-in flex flex-col items-center gap-4">
-          <div className="w-20 h-20 rounded-3xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
-            <Wallet size={36} className="text-amber-400" strokeWidth={1.5} />
+          <div className="w-20 h-20 rounded-3xl bg-lime-400/15 border border-lime-400/20 flex items-center justify-center">
+            <Wallet size={36} className="text-lime-400" strokeWidth={1.5} />
           </div>
           <div className="text-center">
             <h1 className="font-display text-3xl font-bold text-slate-100">NotiWallet</h1>

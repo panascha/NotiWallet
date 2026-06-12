@@ -95,7 +95,7 @@ function SettingsContent({ user }) {
 
   return (
     <div className="min-h-dvh pb-28">
-      <header className="sticky top-0 z-20 bg-[#080812]/80 backdrop-blur-xl border-b border-white/[0.06] px-4">
+      <header className="sticky top-0 z-20 bg-[#0C0C0A]/95 backdrop-blur-sm border-b border-white/[0.06] px-4">
         <div className="flex items-center h-14 gap-3 max-w-lg mx-auto">
           <button onClick={() => router.back()} className="btn-ghost p-2 -ml-2" aria-label="กลับ">
             <ArrowLeft size={20} />
@@ -110,10 +110,10 @@ function SettingsContent({ user }) {
         <section aria-label="iOS Shortcut">
           <button
             onClick={() => router.push("/shortcuts")}
-            className="w-full glass pressable px-4 py-4 flex items-center justify-between text-left border-amber-500/15 bg-amber-500/[0.04]"
+            className="w-full glass pressable px-4 py-4 flex items-center justify-between text-left border-lime-400/15 bg-lime-400/[0.04]"
           >
             <div className="flex items-center gap-3">
-              <Smartphone size={20} className="text-amber-400 shrink-0" />
+              <Smartphone size={20} className="text-lime-400 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-slate-200">ตั้งค่า iOS Shortcut</p>
                 <p className="text-xs text-slate-500 mt-0.5">จับ notification ธนาคาร → บันทึกอัตโนมัติ</p>
@@ -165,7 +165,7 @@ function SettingsContent({ user }) {
             <button
               onClick={addCategory}
               disabled={!newCatLabel.trim()}
-              className="w-12 h-[46px] bg-amber-500 text-gray-900 rounded-xl flex items-center justify-center pressable disabled:opacity-30"
+              className="w-12 h-[46px] bg-lime-400 text-gray-900 rounded-xl flex items-center justify-center pressable disabled:opacity-30"
               aria-label="เพิ่มหมวดหมู่"
             >
               <Plus size={20} strokeWidth={2.5} />
@@ -215,13 +215,13 @@ function SettingsContent({ user }) {
                       onBlur={() => addKeyword(a.id)}
                       autoFocus
                       placeholder="keyword"
-                      className="text-[10px] bg-white/[0.06] border border-amber-500/30 rounded-full px-2 py-0.5 text-amber-300 outline-none w-24"
+                      className="text-[10px] bg-white/[0.06] border border-lime-400/30 rounded-full px-2 py-0.5 text-lime-300 outline-none w-24"
                       aria-label="keyword ใหม่"
                     />
                   ) : (
                     <button
                       onClick={() => { setAddingKwFor(a.id); setNewKwText(""); }}
-                      className="text-[10px] px-2 py-0.5 rounded-full border border-dashed border-white/20 text-slate-600 hover:text-amber-400 hover:border-amber-400/40 pressable transition-colors duration-150"
+                      className="text-[10px] px-2 py-0.5 rounded-full border border-dashed border-white/20 text-slate-600 hover:text-lime-400 hover:border-lime-400/40 pressable transition-colors duration-150"
                       aria-label={`เพิ่ม keyword สำหรับ ${a.label}`}
                     >
                       + keyword
@@ -246,7 +246,7 @@ function SettingsContent({ user }) {
             <button
               onClick={addAccount}
               disabled={!newAccLabel.trim()}
-              className="w-12 h-[46px] bg-amber-500 text-gray-900 rounded-xl flex items-center justify-center pressable disabled:opacity-30"
+              className="w-12 h-[46px] bg-lime-400 text-gray-900 rounded-xl flex items-center justify-center pressable disabled:opacity-30"
               aria-label="เพิ่มบัญชี"
             >
               <Plus size={20} strokeWidth={2.5} />
@@ -276,7 +276,7 @@ function SettingsContent({ user }) {
                 const n = Number(threshold);
                 if (!isNaN(n) && n >= 0) saveLargeExpenseThreshold(n);
               }}
-              className="w-12 h-[46px] bg-amber-500 text-gray-900 rounded-xl flex items-center justify-center pressable font-bold text-lg"
+              className="w-12 h-[46px] bg-lime-400 text-gray-900 rounded-xl flex items-center justify-center pressable font-bold text-lg"
               aria-label="บันทึกขีดจำกัด"
             >
               ✓

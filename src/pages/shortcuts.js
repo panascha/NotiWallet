@@ -28,7 +28,7 @@ function CopyBlock({ label, value }) {
         <span className="text-[10px] text-slate-500 uppercase tracking-wider">{label}</span>
         <button
           onClick={copy}
-          className="flex items-center gap-1.5 text-xs pressable text-amber-400 hover:text-amber-300"
+          className="flex items-center gap-1.5 text-xs pressable text-lime-400 hover:text-lime-300"
           aria-label={`คัดลอก ${label}`}
         >
           {copied ? <><Check size={12} />คัดลอกแล้ว</> : <><Copy size={12} />คัดลอก</>}
@@ -43,8 +43,8 @@ function Step({ n, title, children }) {
   return (
     <div className="flex gap-4">
       <div className="flex flex-col items-center">
-        <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
-          <span className="text-amber-400 text-xs font-bold">{n}</span>
+        <div className="w-7 h-7 rounded-full bg-lime-400/20 border border-lime-400/30 flex items-center justify-center shrink-0">
+          <span className="text-lime-400 text-xs font-bold">{n}</span>
         </div>
         <div className="w-px flex-1 bg-white/[0.06] mt-2" />
       </div>
@@ -83,7 +83,7 @@ function ShortcutsContent({ user }) {
 
   return (
     <div className="min-h-dvh pb-16">
-      <header className="sticky top-0 z-20 bg-[#080812]/80 backdrop-blur-xl border-b border-white/[0.06] px-4">
+      <header className="sticky top-0 z-20 bg-[#0C0C0A]/95 backdrop-blur-sm border-b border-white/[0.06] px-4">
         <div className="flex items-center h-14 gap-3 max-w-lg mx-auto">
           <button onClick={() => router.back()} className="btn-ghost p-2 -ml-2" aria-label="กลับ">
             <ArrowLeft size={20} />
@@ -94,10 +94,10 @@ function ShortcutsContent({ user }) {
 
       <main className="px-4 pt-4 max-w-lg mx-auto">
         {/* Intro */}
-        <div className="glass p-4 mb-6 border-amber-500/15 bg-amber-500/[0.04]">
+        <div className="glass p-4 mb-6 border-lime-400/15 bg-lime-400/[0.04]">
           <p className="text-sm text-slate-300 leading-relaxed">
             iOS Shortcuts Automation จะจับข้อความแจ้งเตือนจากแอปธนาคาร ส่งไปให้ Gemini วิเคราะห์ยอด แล้วเปิดหน้า{" "}
-            <span className="text-amber-300 font-medium">quick-confirm</span>{" "}
+            <span className="text-lime-300 font-medium">quick-confirm</span>{" "}
             พร้อมข้อมูล pre-fill ให้คุณแตะยืนยันแค่ 2 ครั้ง
           </p>
         </div>
@@ -112,7 +112,7 @@ function ShortcutsContent({ user }) {
               {gasUrl ? (
                 <CopyBlock label="GAS URL" value={gasUrl} />
               ) : (
-                <div className="glass px-3 py-2 text-amber-400 text-xs">
+                <div className="glass px-3 py-2 text-lime-400 text-xs">
                   ยังไม่ได้ตั้งค่า NEXT_PUBLIC_GAS_WEBAPP_URL
                 </div>
               )}
@@ -125,7 +125,7 @@ function ShortcutsContent({ user }) {
           <Step n="1" title="สร้าง Automation ใน Shortcuts">
             <p>เปิดแอป <span className="text-slate-200 font-medium">Shortcuts</span> → แท็บ <span className="text-slate-200 font-medium">Automation</span> → <span className="text-slate-200">+</span> → <span className="text-slate-200 font-medium">App</span></p>
             <p className="mt-1">เลือกแอปธนาคาร (Kbank, TrueMoney ฯลฯ) ที่ส่ง push notification แล้วติ๊ก <span className="text-slate-200 font-medium">Notification Received</span></p>
-            <p className="mt-1 text-amber-400/80">ปิด &ldquo;Ask Before Running&rdquo; เพื่อให้ทำงานอัตโนมัติ (iOS 17+: ติ๊ก &ldquo;Run Immediately&rdquo;)</p>
+            <p className="mt-1 text-lime-400/80">ปิด &ldquo;Ask Before Running&rdquo; เพื่อให้ทำงานอัตโนมัติ (iOS 17+: ติ๊ก &ldquo;Run Immediately&rdquo;)</p>
           </Step>
 
           {/* Step 2 — text variable */}
@@ -142,7 +142,7 @@ function ShortcutsContent({ user }) {
               <li>• Method: <span className="text-slate-200">POST</span></li>
               <li>• Request Body: <span className="text-slate-200">JSON</span></li>
             </ul>
-            <p className="mt-2 text-slate-500">Body ที่ต้องส่ง (แทน <code className="text-amber-400/80">&lt;&lt;…&gt;&gt;</code> ด้วย magic variable):</p>
+            <p className="mt-2 text-slate-500">Body ที่ต้องส่ง (แทน <code className="text-lime-400/80">&lt;&lt;…&gt;&gt;</code> ด้วย magic variable):</p>
             <CopyBlock label="JSON Payload" value={payloadTemplate} />
             <div className="mt-2 space-y-1 text-slate-500">
               <p>• <code className="text-slate-300">rawText</code>: magic variable <span className="text-slate-200 font-medium">Provided Input</span> จาก Step 2</p>
@@ -166,7 +166,7 @@ function ShortcutsContent({ user }) {
             <p>เพิ่ม action: <span className="text-slate-200 font-medium">Open URLs</span></p>
             <p className="mt-1 text-slate-500">URL ที่ต้องสร้าง (ต่อ query string จาก dictionary):</p>
             <CopyBlock label="URL Pattern" value={redirectTemplate} />
-            <p className="mt-2 text-slate-500">แต่ละ <code className="text-amber-400/80">&lt;&lt;parsed.xxx&gt;&gt;</code> คือ <span className="text-slate-200 font-medium">Get Dictionary Value</span> ดึง key นั้นออกมาจากผลลัพธ์ Step 4</p>
+            <p className="mt-2 text-slate-500">แต่ละ <code className="text-lime-400/80">&lt;&lt;parsed.xxx&gt;&gt;</code> คือ <span className="text-slate-200 font-medium">Get Dictionary Value</span> ดึง key นั้นออกมาจากผลลัพธ์ Step 4</p>
           </Step>
 
           {/* Step 6 — test */}
