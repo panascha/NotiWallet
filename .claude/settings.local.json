@@ -7,7 +7,14 @@
       "Read(//tmp/**)",
       "Bash(pkill -f \"next dev\")",
       "Bash(git init *)",
-      "Bash(git branch *)"
+      "Bash(git branch *)",
+      "Bash(python3 *)",
+      "Bash(clasp push *)",
+      "Bash(clasp deploy *)",
+      "Bash(clasp status *)",
+      "Bash(clasp whoami *)",
+      "Bash(findstr \"token_type\\\\|client_id\\\\|email\")",
+      "PowerShell(if \\(Test-Path \"$env:USERPROFILE\\\\.clasprc.json\"\\) { Get-Content \"$env:USERPROFILE\\\\.clasprc.json\" | Select-String \"token_type|email|client_id\" } else { \"not found\" })"
     ]
   }
 }

@@ -46,7 +46,7 @@ function respond(data, status) {
 
 function callGemini(prompt, imagePart) {
   const key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key;
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=' + key;
 
   const parts = [];
   if (imagePart) parts.push({ inlineData: { mimeType: 'image/jpeg', data: imagePart } });
