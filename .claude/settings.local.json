@@ -5,7 +5,9 @@
       "PowerShell($skillPath = \"C:\\\\Users\\\\LENOVO\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\src\\\\ui-ux-pro-max\\\\scripts\"; python \"$skillPath\\\\search.py\" \"glassmorphism dark mobile app\" --domain style -n 3 2>&1; python \"$skillPath\\\\search.py\" \"fintech wallet dark\" --domain color -n 2 2>&1)",
       "Bash(npm run *)",
       "Read(//tmp/**)",
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Bash(git init *)",
+      "Bash(git branch *)"
     ]
   }
 }
