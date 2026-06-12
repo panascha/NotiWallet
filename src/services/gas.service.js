@@ -1,7 +1,7 @@
-const GAS_URL = process.env.NEXT_PUBLIC_GAS_WEBAPP_URL;
+import { getGasUrl, getAccounts } from "@/utils/storage";
 
 async function post(body) {
-  const res = await fetch(GAS_URL, {
+  const res = await fetch(getGasUrl(), {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -13,7 +13,8 @@ export async function scanSlip(userId, imageBase64) {
 }
 
 export async function ingestNotification(userId, rawText, capturedAt) {
-  return post({ action: "ingestNotification", userId, rawText, capturedAt });
+  const accounts = getAccounts();
+  return post({ action: "ingestNotification", userId, rawText, capturedAt, accounts });
 }
 
 export async function createTransaction(userId, data) {
@@ -21,7 +22,7 @@ export async function createTransaction(userId, data) {
 }
 
 export async function getTransactions(userId, month) {
-  const url = `${GAS_URL}?action=getTransactions&userId=${userId}&month=${month}`;
+  const url = `${getGasUrl()}?action=getTransactions&userId=${userId}&month=${month}`;
   const res = await fetch(url);
   return res.json();
 }

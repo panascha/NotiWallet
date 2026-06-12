@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { onAuthChange, signInWithGoogle } from "@/services/auth.service";
+import { onAuthChange, signInWithGoogle, IS_FIREBASE_MODE } from "@/services/auth.service";
+import { getOrCreateLocalUserId } from "@/utils/storage";
 import { Wallet, LogIn } from "lucide-react";
 
 export default function AuthGate({ children }) {
@@ -7,6 +8,11 @@ export default function AuthGate({ children }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!IS_FIREBASE_MODE) {
+      const uid = getOrCreateLocalUserId();
+      setUser({ uid, displayName: "NotiWallet", photoURL: null });
+      return;
+    }
     const unsub = onAuthChange((u) => setUser(u));
     return unsub;
   }, []);

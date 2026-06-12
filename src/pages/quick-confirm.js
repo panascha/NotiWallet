@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import AuthGate from "@/components/AuthGate";
 import { createTransaction } from "@/services/gas.service";
-import { getCategories } from "@/utils/storage";
+import { getCategories, getAccounts } from "@/utils/storage";
 import { Check, AlertCircle } from "lucide-react";
 
 export default function QuickConfirmPage() {
@@ -32,16 +32,12 @@ function QuickConfirmForm({ user }) {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
     setCategories(getCategories());
+    setAccounts(getAccounts());
   }, []);
-
-  const ACCOUNT_LABELS = {
-    acc_kbank: "Kbank",
-    acc_truemoney: "Truemoney",
-    acc_paotang: "เป๋าตัง",
-  };
 
   async function handleSave() {
     if (!category) return;
@@ -88,7 +84,7 @@ function QuickConfirmForm({ user }) {
             ฿{Number(qAmount).toLocaleString("th-TH")}
           </p>
           <div className="flex items-center justify-center gap-3 mt-3 text-sm text-slate-400">
-            <span>{ACCOUNT_LABELS[qAccount] || qAccount}</span>
+            <span>{accounts.find((a) => a.id === qAccount)?.label ?? qAccount}</span>
             {qRecipient && <><span className="text-white/20">·</span><span>{qRecipient}</span></>}
           </div>
         </div>

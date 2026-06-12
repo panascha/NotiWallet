@@ -28,7 +28,7 @@ function doPost(e) {
 
   switch (body.action) {
     case 'scanSlip':          return respond(scanSlip(body.userId, body.imageBase64));
-    case 'ingestNotification':return respond(ingestNotification(body.userId, body.rawText, body.capturedAt));
+    case 'ingestNotification':return respond(ingestNotification(body.userId, body.rawText, body.capturedAt, body.accounts));
     case 'createTransaction': return respond(createTransaction(body.userId, body.data));
     case 'createBatch':       return respond(createBatch(body.userId, body.transactionIds, body.title));
     case 'markBatchPaid':     return respond(markBatchPaid(body.userId, body.batchId));
@@ -81,16 +81,32 @@ function scanSlip(userId, imageBase64) {
   return { status: 'success', parsed };
 }
 
-function ingestNotification(userId, rawText, capturedAt) {
-  const prompt = `Parse this Thai bank push notification text and return ONLY valid JSON:
+function ingestNotification(userId, rawText, capturedAt, accounts) {
+  // Build account mapping from caller-supplied list; fall back to hardcoded defaults
+  const accountList = (accounts && accounts.length)
+    ? accounts
+    : [
+        { id: 'acc_kbank',     keywords: ['K PLUS', 'KBANK', 'กสิกร'] },
+        { id: 'acc_truemoney', keywords: ['TrueMoney', 'ทรูมันนี่'] },
+        { id: 'acc_paotang',   keywords: ['เป๋าตัง', 'Pao Tang'] },
+      ];
+
+  const accountIds = accountList.map(a => `"${a.id}"`).join(' | ');
+  const rules = accountList
+    .filter(a => a.keywords && a.keywords.length)
+    .map(a => `${a.keywords.join('/')} → "${a.id}"`)
+    .join(', ');
+  const fallbackId = accountList[0] ? accountList[0].id : 'acc_unknown';
+
+  const prompt = `Parse this bank push notification text and return ONLY valid JSON:
 Text: "${rawText}"
 Return:
 {
   "amount": number,
-  "account_id": "acc_kbank" | "acc_truemoney" | "acc_paotang",
+  "account_id": ${accountIds},
   "recipient": "string or null"
 }
-Rules: Kbank/K PLUS → acc_kbank, Truemoney → acc_truemoney, เป๋าตัง → acc_paotang`;
+Rules: ${rules}. If no keyword matches, use "${fallbackId}".`;
 
   const raw = callGemini(prompt);
   const parsed = JSON.parse(raw);

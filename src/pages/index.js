@@ -5,9 +5,31 @@ import AuthGate from "@/components/AuthGate";
 import BottomNav from "@/components/BottomNav";
 import { getTransactions } from "@/services/gas.service";
 import { logout } from "@/services/auth.service";
+import { getCategories, getLargeExpenseThreshold } from "@/utils/storage";
 import { LogOut, TrendingDown, TrendingUp, ChevronRight, Plus, Settings } from "lucide-react";
 
 const MONTH_LABELS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+const PALETTE = [
+  "#F59E0B", "#10B981", "#A78BFA", "#60A5FA",
+  "#F87171", "#FB923C", "#34D399", "#94A3B8",
+  "#F472B6", "#38BDF8",
+];
+
+const CAT_COLORS = {
+  food: "#F59E0B",
+  grocery: "#10B981",
+  personal: "#A78BFA",
+  transport: "#60A5FA",
+  education: "#F87171",
+  subscription: "#FB923C",
+  monthly: "#34D399",
+  other: "#94A3B8",
+};
+
+function getCategoryColor(catId, index) {
+  return CAT_COLORS[catId] ?? PALETTE[index % PALETTE.length];
+}
 
 function groupByDate(transactions) {
   const groups = {};
@@ -22,6 +44,62 @@ function groupByDate(transactions) {
 function formatThaiDate(isoDate) {
   const d = new Date(isoDate);
   return `${d.getDate()} ${MONTH_LABELS[d.getMonth()]}`;
+}
+
+function DonutChart({ segments, total }) {
+  const size = 120, stroke = 18;
+  const r = (size - stroke) / 2;
+  const cx = size / 2, cy = size / 2;
+  const circ = 2 * Math.PI * r;
+  const quarter = circ / 4;
+  let acc = 0;
+  const segs = segments.map((s) => {
+    const dash = total > 0 ? (s.amount / total) * circ : 0;
+    const seg = { ...s, dash, offset: quarter - acc };
+    acc += dash;
+    return seg;
+  });
+  const label = total >= 10000
+    ? `${Math.round(total / 1000)}K`
+    : total.toLocaleString("th-TH");
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" className="shrink-0">
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={stroke} />
+      {segs.map((s) => (
+        <circle
+          key={s.id}
+          cx={cx} cy={cy} r={r}
+          fill="none"
+          stroke={s.color}
+          strokeWidth={stroke}
+          strokeLinecap="butt"
+          strokeDasharray={`${s.dash} ${circ - s.dash}`}
+          strokeDashoffset={s.offset}
+        />
+      ))}
+      <text
+        x={cx} y={cy - 6}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="#e2e8f0"
+        fontSize="11"
+        fontFamily="JetBrains Mono, monospace"
+        fontWeight="600"
+      >
+        {label}
+      </text>
+      <text
+        x={cx} y={cy + 8}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="#64748b"
+        fontSize="8"
+        fontFamily="Inter, system-ui, sans-serif"
+      >
+        ปกติ
+      </text>
+    </svg>
+  );
 }
 
 export default function Home() {
@@ -41,6 +119,13 @@ function HomeContent({ user }) {
   const [month, setMonth] = useState(now.toISOString().slice(0, 7));
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [threshold, setThreshold] = useState(5000);
+  const [allCategories, setAllCategories] = useState([]);
+
+  useEffect(() => {
+    setThreshold(getLargeExpenseThreshold());
+    setAllCategories(getCategories());
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -57,6 +142,22 @@ function HomeContent({ user }) {
   const pending = transactions.filter((t) => t.reimbursable && !t.batch_id);
   const pendingTotal = pending.reduce((s, t) => s + Number(t.amount), 0);
   const groups = groupByDate(transactions);
+
+  const largeExpenses = expenses.filter((t) => Number(t.amount) >= threshold);
+  const regularExpenses = expenses.filter((t) => Number(t.amount) < threshold);
+  const regularTotal = regularExpenses.reduce((s, t) => s + Number(t.amount), 0);
+  const largeTotal = largeExpenses.reduce((s, t) => s + Number(t.amount), 0);
+
+  const catAmounts = {};
+  regularExpenses.forEach((t) => {
+    catAmounts[t.category] = (catAmounts[t.category] ?? 0) + Number(t.amount);
+  });
+  const catData = Object.entries(catAmounts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([id, amount], i) => {
+      const cat = allCategories.find((c) => c.id === id);
+      return { id, label: cat?.label ?? id, emoji: cat?.emoji ?? "📦", amount, color: getCategoryColor(id, i) };
+    });
 
   const [yr, mo] = month.split("-").map(Number);
   const monthLabel = `${MONTH_LABELS[mo - 1]} ${yr + 543}`;
@@ -156,6 +257,53 @@ function HomeContent({ user }) {
               <ChevronRight size={20} className="text-amber-500/60" />
             </div>
           </button>
+        )}
+
+        {/* Category breakdown chart */}
+        {!loading && catData.length > 0 && (
+          <div className="glass p-5 animate-fade-up">
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-4">รายจ่ายตามหมวด</p>
+            <div className="flex items-center gap-4">
+              <DonutChart segments={catData} total={regularTotal} />
+              <div className="flex-1 space-y-2 min-w-0">
+                {catData.map((c) => (
+                  <div key={c.id} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: c.color }} />
+                    <span className="text-xs text-slate-400 truncate flex-1">{c.label}</span>
+                    <span className="amount text-xs text-slate-300 shrink-0">
+                      ฿{c.amount.toLocaleString("th-TH")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Large expenses */}
+        {!loading && largeExpenses.length > 0 && (
+          <div className="glass p-4 animate-fade-up border-red-500/15 bg-red-500/[0.04]">
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-3">รายจ่ายก้อนใหญ่</p>
+            <div className="space-y-2">
+              {largeExpenses.map((t) => (
+                <div key={t.id} className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-slate-300 truncate">{t.note || t.recipient || t.category}</p>
+                    <p className="text-xs text-slate-600">{t.category}</p>
+                  </div>
+                  <span className="amount text-sm font-semibold text-red-400 shrink-0">
+                    ฿{Number(t.amount).toLocaleString("th-TH")}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-between items-center">
+              <span className="text-xs text-slate-500">{largeExpenses.length} รายการ</span>
+              <span className="amount text-sm font-bold text-red-400">
+                ฿{largeTotal.toLocaleString("th-TH")}
+              </span>
+            </div>
+          </div>
         )}
 
         {/* Transaction list */}
