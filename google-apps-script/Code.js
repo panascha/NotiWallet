@@ -30,9 +30,11 @@ function doPost(e) {
     case 'scanSlip':          return respond(scanSlip(body.userId, body.imageBase64));
     case 'ingestNotification':return respond(ingestNotification(body.userId, body.rawText, body.capturedAt, body.accounts));
     case 'createTransaction': return respond(createTransaction(body.userId, body.data));
-    case 'createBatch':       return respond(createBatch(body.userId, body.transactionIds, body.title));
-    case 'markBatchPaid':     return respond(markBatchPaid(body.userId, body.batchId));
-    default:                  return respond({ error: 'Unknown action' }, 400);
+    case 'createBatch':         return respond(createBatch(body.userId, body.transactionIds, body.title));
+    case 'markBatchPaid':       return respond(markBatchPaid(body.userId, body.batchId));
+    case 'updateTransaction':   return respond(updateTransaction(body.userId, body.transactionId, body.data));
+    case 'deleteTransaction':   return respond(deleteTransaction(body.userId, body.transactionId));
+    default:                    return respond({ error: 'Unknown action' }, 400);
   }
 }
 
@@ -239,6 +241,44 @@ function markBatchPaid(userId, batchId) {
   }
 
   return { status: 'error', message: 'Batch not found' };
+}
+
+function updateTransaction(userId, transactionId, data) {
+  const sheet = getSheet(SHEET_NAME.TRANSACTIONS);
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows[0];
+  const col = (name) => headers.indexOf(name);
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][col('id')] === transactionId && rows[i][col('user_id')] === userId) {
+      const mutable = ['date', 'type', 'amount', 'category', 'account_id', 'recipient', 'note', 'reimbursable'];
+      for (const field of mutable) {
+        if (data[field] !== undefined) {
+          let val = data[field];
+          if (field === 'reimbursable') val = val ? 'TRUE' : 'FALSE';
+          if (field === 'amount') val = Number(val);
+          sheet.getRange(i + 1, col(field) + 1).setValue(val);
+        }
+      }
+      return { status: 'success' };
+    }
+  }
+  return { status: 'error', message: 'Transaction not found' };
+}
+
+function deleteTransaction(userId, transactionId) {
+  const sheet = getSheet(SHEET_NAME.TRANSACTIONS);
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows[0];
+  const col = (name) => headers.indexOf(name);
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][col('id')] === transactionId && rows[i][col('user_id')] === userId) {
+      sheet.deleteRow(i + 1);
+      return { status: 'success' };
+    }
+  }
+  return { status: 'error', message: 'Transaction not found' };
 }
 
 // ── Helpers ───────────────────────────────────────────────────

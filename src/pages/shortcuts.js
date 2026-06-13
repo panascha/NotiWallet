@@ -68,7 +68,7 @@ function ShortcutsContent({ user }) {
   const payloadTemplate = JSON.stringify({
     action: "ingestNotification",
     userId: user.uid,
-    rawText: "<<Notification Content>>",
+    rawText: "<<Clipboard>>",
     capturedAt: "<<Current Date>>",
   }, null, 2);
 
@@ -94,12 +94,33 @@ function ShortcutsContent({ user }) {
 
       <main className="px-4 pt-4 max-w-lg mx-auto">
         {/* Intro */}
-        <div className="glass p-4 mb-6 border-lime-400/15 bg-lime-400/[0.04]">
+        <div className="glass p-4 mb-4 border-lime-400/15 bg-lime-400/[0.04]">
           <p className="text-sm text-slate-300 leading-relaxed">
-            iOS Shortcuts Automation จะจับข้อความแจ้งเตือนจากแอปธนาคาร ส่งไปให้ Gemini วิเคราะห์ยอด แล้วเปิดหน้า{" "}
+            แอปธนาคารไทยส่วนใหญ่ block trigger อัตโนมัติของ iOS Shortcuts ได้ วิธีนี้ใช้{" "}
+            <span className="text-lime-300 font-medium">Clipboard</span>{" "}
+            แทน — copy ข้อความ notification แล้วแตะ shortcut 1 ครั้ง หน้า{" "}
             <span className="text-lime-300 font-medium">quick-confirm</span>{" "}
-            พร้อมข้อมูล pre-fill ให้คุณแตะยืนยันแค่ 2 ครั้ง
+            จะเปิดพร้อม pre-fill ยอดเงินให้ทันที
           </p>
+        </div>
+
+        {/* Usage flow */}
+        <div className="glass p-4 mb-6">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-3">วิธีใช้งาน (หลังตั้งค่าแล้ว)</p>
+          <div className="flex items-start gap-3">
+            {[
+              { n: "1", text: "Long-press notification จากธนาคาร → Copy" },
+              { n: "2", text: "แตะไอคอน NotiWallet Shortcut บน Home Screen" },
+              { n: "3", text: "หน้า quick-confirm เปิดพร้อมยอดเงิน pre-fill" },
+            ].map(({ n, text }) => (
+              <div key={n} className="flex-1 flex flex-col items-center gap-1.5 text-center">
+                <div className="w-6 h-6 rounded-full bg-amber-400/20 border border-amber-400/30 flex items-center justify-center">
+                  <span className="text-amber-400 text-[10px] font-bold">{n}</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-snug">{text}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Steps */}
@@ -121,17 +142,16 @@ function ShortcutsContent({ user }) {
             </div>
           </Step>
 
-          {/* Step 1 — create automation */}
-          <Step n="1" title="สร้าง Automation ใน Shortcuts">
-            <p>เปิดแอป <span className="text-slate-200 font-medium">Shortcuts</span> → แท็บ <span className="text-slate-200 font-medium">Automation</span> → <span className="text-slate-200">+</span> → <span className="text-slate-200 font-medium">App</span></p>
-            <p className="mt-1">เลือกแอปธนาคาร (Kbank, TrueMoney ฯลฯ) ที่ส่ง push notification แล้วติ๊ก <span className="text-slate-200 font-medium">Notification Received</span></p>
-            <p className="mt-1 text-lime-400/80">ปิด &ldquo;Ask Before Running&rdquo; เพื่อให้ทำงานอัตโนมัติ (iOS 17+: ติ๊ก &ldquo;Run Immediately&rdquo;)</p>
+          {/* Step 1 — create shortcut */}
+          <Step n="1" title="สร้าง Shortcut ใหม่">
+            <p>เปิดแอป <span className="text-slate-200 font-medium">Shortcuts</span> → แท็บ <span className="text-slate-200 font-medium">Shortcuts</span> (ไม่ใช่ Automation) → แตะ <span className="text-slate-200 font-medium">+</span> มุมขวาบน</p>
+            <p className="mt-1 text-slate-500">ตั้งชื่อ Shortcut ว่า <span className="text-slate-300">NotiWallet</span> เพื่อให้หาง่าย</p>
           </Step>
 
-          {/* Step 2 — text variable */}
-          <Step n="2" title="รับข้อความ notification">
-            <p>เพิ่ม action: <span className="text-slate-200 font-medium">Text</span> — ใส่ค่า <span className="text-slate-200 font-medium">Notification Content</span> (แตะ magic variable)</p>
-            <p className="mt-1 text-slate-500">ค่านี้คือ rawText ที่จะส่งไป GAS</p>
+          {/* Step 2 — get clipboard */}
+          <Step n="2" title="ดึงข้อความจาก Clipboard">
+            <p>แตะ <span className="text-slate-200 font-medium">Add Action</span> → ค้นหา <span className="text-slate-200 font-medium">Get Clipboard</span> → แตะเพิ่ม</p>
+            <p className="mt-1 text-slate-500">action นี้ดึงข้อความที่ copy ไว้ล่าสุดมาใช้เป็น rawText — ไม่ต้องตั้งค่าอะไรเพิ่ม</p>
           </Step>
 
           {/* Step 3 — POST to GAS */}
@@ -145,8 +165,8 @@ function ShortcutsContent({ user }) {
             <p className="mt-2 text-slate-500">Body ที่ต้องส่ง (แทน <code className="text-lime-400/80">&lt;&lt;…&gt;&gt;</code> ด้วย magic variable):</p>
             <CopyBlock label="JSON Payload" value={payloadTemplate} />
             <div className="mt-2 space-y-1 text-slate-500">
-              <p>• <code className="text-slate-300">rawText</code>: magic variable <span className="text-slate-200 font-medium">Provided Input</span> จาก Step 2</p>
-              <p>• <code className="text-slate-300">capturedAt</code>: magic variable <span className="text-slate-200 font-medium">Current Date</span> → format ISO 8601</p>
+              <p>• <code className="text-slate-300">rawText</code>: magic variable <span className="text-slate-200 font-medium">Clipboard</span> (ผลลัพธ์จาก Step 2)</p>
+              <p>• <code className="text-slate-300">capturedAt</code>: magic variable <span className="text-slate-200 font-medium">Current Date</span> → format ISO 8601 (เปิด Include Time ไว้)</p>
               <p>• <code className="text-slate-300">userId</code>: ค่า User ID จาก Step 0 (hardcode)</p>
             </div>
           </Step>
@@ -169,14 +189,20 @@ function ShortcutsContent({ user }) {
             <p className="mt-2 text-slate-500">แต่ละ <code className="text-lime-400/80">&lt;&lt;parsed.xxx&gt;&gt;</code> คือ <span className="text-slate-200 font-medium">Get Dictionary Value</span> ดึง key นั้นออกมาจากผลลัพธ์ Step 4</p>
           </Step>
 
-          {/* Step 6 — test */}
-          <Step n="6" title="ทดสอบ">
-            <p>รัน Automation ด้วยตนเอง 1 ครั้งก่อน โดยใช้ข้อความตัวอย่าง เช่น:</p>
+          {/* Step 6 — add to home screen */}
+          <Step n="6" title="เพิ่มลง Home Screen">
+            <p>ใน Shortcuts → แตะ Shortcut NotiWallet ค้างไว้ → <span className="text-slate-200 font-medium">Share</span> → <span className="text-slate-200 font-medium">Add to Home Screen</span></p>
+            <p className="mt-1 text-slate-500">ไอคอนจะอยู่บน Home Screen แตะได้ทันทีหลัง copy notification</p>
+          </Step>
+
+          {/* Step 7 — test */}
+          <Step n="7" title="ทดสอบ">
+            <p>Copy ข้อความตัวอย่างนี้ก่อน แล้วแตะ Shortcut:</p>
             <CopyBlock
               label="ตัวอย่าง notification"
               value="K PLUS: รายการโอนเงิน 350.00 บาท วันที่ 12/06/69 เวลา 19:20 น."
             />
-            <p className="mt-2">หน้า quick-confirm ควรเปิดโดยอัตโนมัติพร้อมยอด ฿350 pre-fill แล้ว</p>
+            <p className="mt-2">หน้า quick-confirm ควรเปิดพร้อมยอด <span className="text-slate-200 font-medium">฿350</span> pre-fill แล้ว</p>
             <p className="mt-1 text-slate-500">ถ้าเห็น &ldquo;รายการนี้บันทึกแล้ว&rdquo; = dedup ทำงานถูกต้อง (ลองใหม่ด้วยยอด/เวลาต่างกัน)</p>
           </Step>
         </div>
