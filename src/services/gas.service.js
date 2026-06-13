@@ -34,3 +34,11 @@ export async function createBatch(userId, transactionIds, title) {
 export async function markBatchPaid(userId, batchId) {
   return post({ action: "markBatchPaid", userId, batchId });
 }
+
+export async function updateTransaction(userId, transactionId, data) {
+  return post({ action: "updateTransaction", userId, transactionId, data });
+}
+
+export async function deleteTransaction(userId, transactionId) {
+  return post({ action: "deleteTransaction", userId, transactionId });
+}

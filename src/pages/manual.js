@@ -3,9 +3,9 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import AuthGate from "@/components/AuthGate";
 import BottomNav from "@/components/BottomNav";
-import { createTransaction } from "@/services/gas.service";
-import { getCategories, getAccounts } from "@/utils/storage";
-import { ArrowLeft, Check } from "lucide-react";
+import { createTransaction, updateTransaction, deleteTransaction } from "@/services/gas.service";
+import { getCategories, getAccounts, getCachedTxns, setCachedTxns } from "@/utils/storage";
+import { ArrowLeft, Check, Trash2 } from "lucide-react";
 
 export default function ManualPage() {
   return (
@@ -18,6 +18,7 @@ export default function ManualPage() {
 
 function ManualForm({ user }) {
   const router = useRouter();
+  const { edit: editId } = router.query;
   const [type, setType] = useState("expense");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -30,20 +31,47 @@ function ManualForm({ user }) {
   const [done, setDone] = useState(false);
   const [categories, setCategories] = useState([]);
   const [accounts, setAccounts] = useState([]);
+  const [editTx, setEditTx] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const cats = getCategories();
     const accs = getAccounts();
     setCategories(cats);
     setAccounts(accs);
-    setAccount(accs[0]?.id ?? "");
+    if (!editId) setAccount(accs[0]?.id ?? "");
   }, []);
+
+  useEffect(() => {
+    if (!editId || !router.isReady) return;
+    const prefix = `nw_txns_${user.uid}_`;
+    const allKeys = Object.keys(localStorage).filter((k) => k.startsWith(prefix));
+    for (const key of allKeys) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(key) || "null");
+        const tx = cached?.transactions?.find((t) => t.id === editId);
+        if (tx) {
+          setEditTx(tx);
+          setType(tx.type);
+          setAmount(String(tx.amount));
+          setDate(tx.date.slice(0, 10));
+          setCategory(tx.category);
+          setAccount(tx.account_id || "");
+          setNote(tx.note || "");
+          setRecipient(tx.recipient || "");
+          setReimbursable(tx.reimbursable);
+          break;
+        }
+      } catch {}
+    }
+  }, [editId, router.isReady]);
 
   async function handleSave() {
     if (!amount || !category) return;
     setSaving(true);
     try {
-      await createTransaction(user.uid, {
+      const data = {
         type,
         amount: Number(amount),
         date: new Date(date).toISOString(),
@@ -52,12 +80,39 @@ function ManualForm({ user }) {
         note,
         recipient,
         reimbursable,
-        source: "manual",
-      });
+      };
+      if (editId) {
+        await updateTransaction(user.uid, editId, data);
+        const month = data.date.slice(0, 7);
+        const cached = getCachedTxns(user.uid, month);
+        if (cached) {
+          setCachedTxns(user.uid, month, cached.transactions.map((t) =>
+            t.id === editId ? { ...t, ...data } : t
+          ));
+        }
+      } else {
+        await createTransaction(user.uid, { ...data, source: "manual" });
+      }
       setDone(true);
       setTimeout(() => router.push("/"), 800);
     } catch {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      await deleteTransaction(user.uid, editId);
+      const month = editTx.date.slice(0, 7);
+      const cached = getCachedTxns(user.uid, month);
+      if (cached) {
+        setCachedTxns(user.uid, month, cached.transactions.filter((t) => t.id !== editId));
+      }
+      router.push("/");
+    } catch {
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -69,7 +124,7 @@ function ManualForm({ user }) {
           <button onClick={() => router.back()} className="btn-ghost p-2 -ml-2" aria-label="กลับ">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="font-display font-semibold text-slate-100">บันทึกรายการ</h1>
+          <h1 className="font-display font-semibold text-slate-100">{editId ? "แก้ไขรายการ" : "บันทึกรายการ"}</h1>
         </div>
       </header>
 
@@ -222,10 +277,45 @@ function ManualForm({ user }) {
             <><Check size={18} /> บันทึกแล้ว</>
           ) : saving ? (
             <div className="w-5 h-5 border-2 border-gray-900/30 border-t-gray-900 rounded-full animate-spin" />
+          ) : editId ? (
+            "บันทึกการแก้ไข"
           ) : (
             "บันทึก"
           )}
         </button>
+        {editId && (
+          <div className="pt-2 border-t border-white/[0.06]">
+            {editTx?.batch_id ? (
+              <p className="text-xs text-slate-500 text-center py-3">รายการนี้อยู่ใน Batch แล้ว ไม่สามารถลบได้</p>
+            ) : !confirmDelete ? (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="w-full py-3 text-sm text-red-400 pressable rounded-xl hover:bg-red-500/10 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Trash2 size={14} />ลบรายการ
+              </button>
+            ) : (
+              <div className="glass border border-red-500/20 p-4 space-y-3">
+                <p className="text-sm text-center text-slate-300">ยืนยันลบรายการนี้?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="flex-1 py-2.5 text-sm text-slate-400 glass pressable rounded-xl"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="flex-1 py-2.5 text-sm font-semibold text-white bg-red-500/80 pressable rounded-xl disabled:opacity-50"
+                  >
+                    {deleting ? "กำลังลบ..." : "ลบเลย"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       <BottomNav />

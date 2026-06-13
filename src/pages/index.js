@@ -368,9 +368,15 @@ function HomeContent({ user }) {
 }
 
 function TransactionRow({ t }) {
+  const router = useRouter();
   const isExpense = t.type === "expense";
   return (
-    <div className="glass pressable px-4 py-3 flex items-center justify-between gap-3">
+    <div
+      className="glass pressable px-4 py-3 flex items-center justify-between gap-3 cursor-pointer"
+      onClick={() => router.push(`/manual?edit=${t.id}`)}
+      role="button"
+      tabIndex={0}
+    >
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-slate-200 truncate">
           {t.note || t.recipient || t.category}
