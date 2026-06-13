@@ -5,7 +5,7 @@ import AuthGate from "@/components/AuthGate";
 import BottomNav from "@/components/BottomNav";
 import { getTransactions } from "@/services/gas.service";
 import { logout } from "@/services/auth.service";
-import { getCategories, getLargeExpenseThreshold, getCachedTxns, setCachedTxns } from "@/utils/storage";
+import { getCategories, getLargeExpenseThreshold, getCachedTxns, setCachedTxns, getBillingCycleStart, getHideBalances } from "@/utils/storage";
 import { LogOut, TrendingDown, TrendingUp, ChevronRight, Plus, Settings } from "lucide-react";
 
 const MONTH_LABELS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -46,7 +46,18 @@ function formatThaiDate(isoDate) {
   return `${d.getDate()} ${MONTH_LABELS[d.getMonth()]}`;
 }
 
-function DonutChart({ segments, total }) {
+function getCycleRange(cycleMonthStr, cycleStart) {
+  const [y, m] = cycleMonthStr.split("-").map(Number);
+  const start = new Date(y, m - 1, cycleStart);
+  const end = new Date(y, m, cycleStart - 1, 23, 59, 59, 999);
+  return { start, end };
+}
+
+function filterByCycle(txns, start, end) {
+  return txns.filter((t) => { const d = new Date(t.date); return d >= start && d <= end; });
+}
+
+function DonutChart({ segments, total, hideAmount }) {
   const size = 120, stroke = 18;
   const r = (size - stroke) / 2;
   const cx = size / 2, cy = size / 2;
@@ -59,9 +70,9 @@ function DonutChart({ segments, total }) {
     acc += dash;
     return seg;
   });
-  const label = total >= 10000
+  const label = hideAmount ? "***" : (total >= 10000
     ? `${Math.round(total / 1000)}K`
-    : total.toLocaleString("th-TH");
+    : total.toLocaleString("th-TH"));
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" className="shrink-0">
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={stroke} />
@@ -121,31 +132,65 @@ function HomeContent({ user }) {
   const [loading, setLoading] = useState(true);
   const [threshold, setThreshold] = useState(5000);
   const [allCategories, setAllCategories] = useState([]);
+  const [cycleStart, setCycleStart] = useState(1);
+  const [hideBalances, setHideBalances] = useState(false);
 
   useEffect(() => {
     setThreshold(getLargeExpenseThreshold());
     setAllCategories(getCategories());
+    const cs = getBillingCycleStart();
+    setCycleStart(cs);
+    if (cs > 1) {
+      const today = new Date();
+      if (today.getDate() < cs) {
+        const lastM = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        setMonth(lastM.toISOString().slice(0, 7));
+      }
+    }
+    setHideBalances(getHideBalances());
   }, []);
 
   useEffect(() => {
-    const cached = getCachedTxns(user.uid, month);
-    if (cached) {
-      setTransactions(cached.transactions);
-      setLoading(false);
+    if (cycleStart > 1) {
+      const { start, end } = getCycleRange(month, cycleStart);
+      const [y, m] = month.split("-").map(Number);
+      const nextM = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+      const c1 = getCachedTxns(user.uid, month);
+      const c2 = getCachedTxns(user.uid, nextM);
+      if (c1 && c2) {
+        setTransactions(filterByCycle([...c1.transactions, ...c2.transactions], start, end));
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+      Promise.all([getTransactions(user.uid, month), getTransactions(user.uid, nextM)])
+        .then(([d1, d2]) => {
+          const t1 = d1.transactions ?? [];
+          const t2 = d2.transactions ?? [];
+          setCachedTxns(user.uid, month, t1);
+          setCachedTxns(user.uid, nextM, t2);
+          setTransactions(filterByCycle([...t1, ...t2], start, end));
+        })
+        .catch(() => { if (!c1 && !c2) setTransactions([]); })
+        .finally(() => setLoading(false));
     } else {
-      setLoading(true);
+      const cached = getCachedTxns(user.uid, month);
+      if (cached) {
+        setTransactions(cached.transactions);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+      getTransactions(user.uid, month)
+        .then((d) => {
+          const txns = d.transactions ?? [];
+          setTransactions(txns);
+          setCachedTxns(user.uid, month, txns);
+        })
+        .catch(() => { if (!cached) setTransactions([]); })
+        .finally(() => setLoading(false));
     }
-    getTransactions(user.uid, month)
-      .then((d) => {
-        const txns = d.transactions ?? [];
-        setTransactions(txns);
-        setCachedTxns(user.uid, month, txns);
-      })
-      .catch(() => {
-        if (!cached) setTransactions([]);
-      })
-      .finally(() => setLoading(false));
-  }, [user.uid, month]);
+  }, [user.uid, month, cycleStart]);
 
   const expenses = transactions.filter((t) => t.type === "expense");
   const incomes = transactions.filter((t) => t.type === "income");
@@ -172,7 +217,16 @@ function HomeContent({ user }) {
     });
 
   const [yr, mo] = month.split("-").map(Number);
-  const monthLabel = `${MONTH_LABELS[mo - 1]} ${yr + 543}`;
+  let monthLabel;
+  if (cycleStart > 1) {
+    const { start, end } = getCycleRange(month, cycleStart);
+    monthLabel = `${start.getDate()} ${MONTH_LABELS[start.getMonth()]} – ${end.getDate()} ${MONTH_LABELS[end.getMonth()]} ${end.getFullYear() + 543}`;
+  } else {
+    monthLabel = `${MONTH_LABELS[mo - 1]} ${yr + 543}`;
+  }
+  const currentCycleAnchor = cycleStart > 1 && now.getDate() < cycleStart
+    ? new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 7)
+    : now.toISOString().slice(0, 7);
 
   function prevMonth() {
     const d = new Date(`${month}-01`);
@@ -182,7 +236,7 @@ function HomeContent({ user }) {
   function nextMonth() {
     const d = new Date(`${month}-01`);
     d.setMonth(d.getMonth() + 1);
-    if (d <= now) setMonth(d.toISOString().slice(0, 7));
+    if (d.toISOString().slice(0, 7) <= currentCycleAnchor) setMonth(d.toISOString().slice(0, 7));
   }
 
   return (
@@ -220,7 +274,7 @@ function HomeContent({ user }) {
           <span className="font-display font-semibold text-slate-200">{monthLabel}</span>
           <button
             onClick={nextMonth}
-            disabled={month >= now.toISOString().slice(0, 7)}
+            disabled={month >= currentCycleAnchor}
             className="btn-ghost px-3 py-1.5 text-xl disabled:opacity-30"
           >›</button>
         </div>
@@ -234,7 +288,7 @@ function HomeContent({ user }) {
                 <TrendingDown size={14} />
                 <span className="text-xs text-slate-400">รายจ่าย</span>
               </div>
-              <p className="amount text-2xl font-semibold text-slate-100">
+              <p className={`amount text-2xl font-semibold text-slate-100${hideBalances ? " blur-sm select-none" : ""}`}>
                 ฿{totalExpense.toLocaleString("th-TH")}
               </p>
             </div>
@@ -244,7 +298,7 @@ function HomeContent({ user }) {
                 <TrendingUp size={14} />
                 <span className="text-xs text-slate-400">รายรับ</span>
               </div>
-              <p className="amount text-2xl font-semibold text-slate-100">
+              <p className={`amount text-2xl font-semibold text-slate-100${hideBalances ? " blur-sm select-none" : ""}`}>
                 ฿{totalIncome.toLocaleString("th-TH")}
               </p>
             </div>
@@ -261,7 +315,7 @@ function HomeContent({ user }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-lime-400/80 font-medium mb-1">รอเบิก</p>
-                <p className="amount text-2xl font-bold text-lime-300">
+                <p className={`amount text-2xl font-bold text-lime-300${hideBalances ? " blur-sm select-none" : ""}`}>
                   ฿{pendingTotal.toLocaleString("th-TH")}
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5">{pending.length} รายการ</p>
@@ -276,13 +330,13 @@ function HomeContent({ user }) {
           <div className="glass p-5 animate-fade-up">
             <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-4">รายจ่ายตามหมวด</p>
             <div className="flex items-center gap-4">
-              <DonutChart segments={catData} total={regularTotal} />
+              <DonutChart segments={catData} total={regularTotal} hideAmount={hideBalances} />
               <div className="flex-1 space-y-2 min-w-0">
                 {catData.map((c) => (
                   <div key={c.id} className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full shrink-0" style={{ background: c.color }} />
                     <span className="text-xs text-slate-400 truncate flex-1">{c.label}</span>
-                    <span className="amount text-xs text-slate-300 shrink-0">
+                    <span className={`amount text-xs text-slate-300 shrink-0${hideBalances ? " blur-sm select-none" : ""}`}>
                       ฿{c.amount.toLocaleString("th-TH")}
                     </span>
                   </div>
@@ -303,7 +357,7 @@ function HomeContent({ user }) {
                     <p className="text-sm text-slate-300 truncate">{t.note || t.recipient || t.category}</p>
                     <p className="text-xs text-slate-600">{t.category}</p>
                   </div>
-                  <span className="amount text-sm font-semibold text-red-400 shrink-0">
+                  <span className={`amount text-sm font-semibold text-red-400 shrink-0${hideBalances ? " blur-sm select-none" : ""}`}>
                     ฿{Number(t.amount).toLocaleString("th-TH")}
                   </span>
                 </div>
@@ -311,7 +365,7 @@ function HomeContent({ user }) {
             </div>
             <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-between items-center">
               <span className="text-xs text-slate-500">{largeExpenses.length} รายการ</span>
-              <span className="amount text-sm font-bold text-red-400">
+              <span className={`amount text-sm font-bold text-red-400${hideBalances ? " blur-sm select-none" : ""}`}>
                 ฿{largeTotal.toLocaleString("th-TH")}
               </span>
             </div>
@@ -353,7 +407,7 @@ function HomeContent({ user }) {
                 </p>
                 <div className="space-y-2">
                   {items.map((t) => (
-                    <TransactionRow key={t.id} t={t} />
+                    <TransactionRow key={t.id} t={t} hideBalances={hideBalances} />
                   ))}
                 </div>
               </div>
@@ -367,7 +421,7 @@ function HomeContent({ user }) {
   );
 }
 
-function TransactionRow({ t }) {
+function TransactionRow({ t, hideBalances }) {
   const router = useRouter();
   const isExpense = t.type === "expense";
   return (
@@ -395,7 +449,7 @@ function TransactionRow({ t }) {
           )}
         </div>
       </div>
-      <span className={`amount text-sm font-semibold shrink-0 ${isExpense ? "text-red-400" : "text-emerald-400"}`}>
+      <span className={`amount text-sm font-semibold shrink-0 ${isExpense ? "text-red-400" : "text-emerald-400"}${hideBalances ? " blur-sm select-none" : ""}`}>
         {isExpense ? "-" : "+"}฿{Number(t.amount).toLocaleString("th-TH")}
       </span>
     </div>

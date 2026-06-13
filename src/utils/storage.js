@@ -123,3 +123,64 @@ export function exportBackupJSON() {
   }
   return JSON.stringify(result, null, 2);
 }
+
+export function getBillingCycleStart() {
+  if (typeof window === "undefined") return 1;
+  try {
+    const v = localStorage.getItem("nw_billing_start");
+    const n = v ? Number(v) : 1;
+    return Math.min(28, Math.max(1, n));
+  } catch {
+    return 1;
+  }
+}
+
+export function saveBillingCycleStart(day) {
+  const n = Math.min(28, Math.max(1, Number(day)));
+  localStorage.setItem("nw_billing_start", String(n));
+}
+
+export function getHideBalances() {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem("nw_hide_balances") === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function saveHideBalances(bool) {
+  localStorage.setItem("nw_hide_balances", bool ? "true" : "false");
+}
+
+export function exportCacheAsCSV() {
+  if (typeof window === "undefined") return "";
+  const COLS = ["id", "date", "type", "amount", "category", "account_id", "recipient", "bank", "note", "source", "reimbursable", "batch_id"];
+  const rows = [COLS.join(",")];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith("nw_txns_")) continue;
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      (data.transactions ?? []).forEach((t) => {
+        rows.push(COLS.map((c) => {
+          const s = String(t[c] ?? "");
+          return s.includes(",") || s.includes('"') || s.includes("\n")
+            ? `"${s.replace(/"/g, '""')}"`
+            : s;
+        }).join(","));
+      });
+    } catch {}
+  }
+  return rows.join("\n");
+}
+
+export function clearCachedTransactions() {
+  if (typeof window === "undefined") return;
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith("nw_txns_")) keys.push(key);
+  }
+  keys.forEach((k) => localStorage.removeItem(k));
+}
