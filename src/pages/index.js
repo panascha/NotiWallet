@@ -5,7 +5,7 @@ import AuthGate from "@/components/AuthGate";
 import BottomNav from "@/components/BottomNav";
 import { getTransactions } from "@/services/gas.service";
 import { logout } from "@/services/auth.service";
-import { getCategories, getLargeExpenseThreshold } from "@/utils/storage";
+import { getCategories, getLargeExpenseThreshold, getCachedTxns, setCachedTxns } from "@/utils/storage";
 import { LogOut, TrendingDown, TrendingUp, ChevronRight, Plus, Settings } from "lucide-react";
 
 const MONTH_LABELS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -128,10 +128,22 @@ function HomeContent({ user }) {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
+    const cached = getCachedTxns(user.uid, month);
+    if (cached) {
+      setTransactions(cached.transactions);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     getTransactions(user.uid, month)
-      .then((d) => setTransactions(d.transactions ?? []))
-      .catch(() => setTransactions([]))
+      .then((d) => {
+        const txns = d.transactions ?? [];
+        setTransactions(txns);
+        setCachedTxns(user.uid, month, txns);
+      })
+      .catch(() => {
+        if (!cached) setTransactions([]);
+      })
       .finally(() => setLoading(false));
   }, [user.uid, month]);
 

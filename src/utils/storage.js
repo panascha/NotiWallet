@@ -90,3 +90,36 @@ export function getOrCreateLocalUserId() {
     return "local_user";
   }
 }
+
+export function getCachedTxns(userId, month) {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(`nw_txns_${userId}_${month}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setCachedTxns(userId, month, transactions) {
+  try {
+    localStorage.setItem(
+      `nw_txns_${userId}_${month}`,
+      JSON.stringify({ transactions, cachedAt: new Date().toISOString() })
+    );
+  } catch {}
+}
+
+export function exportBackupJSON() {
+  if (typeof window === "undefined") return "{}";
+  const result = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith("nw_txns_")) {
+      try {
+        result[key] = JSON.parse(localStorage.getItem(key));
+      } catch {}
+    }
+  }
+  return JSON.stringify(result, null, 2);
+}

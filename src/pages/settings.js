@@ -7,8 +7,9 @@ import {
   getCategories, saveCategories,
   getAccounts, saveAccounts,
   getLargeExpenseThreshold, saveLargeExpenseThreshold,
+  exportBackupJSON,
 } from "@/utils/storage";
-import { ArrowLeft, Trash2, Plus, Smartphone, X } from "lucide-react";
+import { ArrowLeft, Trash2, Plus, Smartphone, X, Download } from "lucide-react";
 
 export default function SettingsPage() {
   return (
@@ -29,11 +30,24 @@ function SettingsContent({ user }) {
   const [threshold, setThreshold] = useState("5000");
   const [addingKwFor, setAddingKwFor] = useState(null);
   const [newKwText, setNewKwText] = useState("");
+  const [backupInfo, setBackupInfo] = useState({ count: 0, months: 0 });
 
   useEffect(() => {
     setCategories(getCategories());
     setAccounts(getAccounts());
     setThreshold(String(getLargeExpenseThreshold()));
+    let count = 0, months = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith("nw_txns_")) {
+        months++;
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          count += data.transactions?.length ?? 0;
+        } catch {}
+      }
+    }
+    setBackupInfo({ count, months });
   }, []);
 
   function addCategory() {
@@ -91,6 +105,17 @@ function SettingsContent({ user }) {
     );
     setAccounts(next);
     saveAccounts(next);
+  }
+
+  function downloadBackup() {
+    const json = exportBackupJSON();
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `notiwallet-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -280,6 +305,27 @@ function SettingsContent({ user }) {
               aria-label="บันทึกขีดจำกัด"
             >
               ✓
+            </button>
+          </div>
+        </section>
+
+        {/* Backup */}
+        <section aria-label="ข้อมูลสำรอง">
+          <h2 className="text-sm font-semibold text-slate-300 mb-1">ข้อมูลสำรอง</h2>
+          <p className="text-xs text-slate-500 mb-3">บันทึกอัตโนมัติในเครื่องทุกครั้งที่โหลดหน้าหลัก</p>
+          <div className="glass px-4 py-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-200">{backupInfo.count} รายการ</p>
+              <p className="text-xs text-slate-500">{backupInfo.months} เดือน</p>
+            </div>
+            <button
+              onClick={downloadBackup}
+              disabled={backupInfo.count === 0}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-lime-400 pressable btn-ghost rounded-xl disabled:opacity-30"
+              aria-label="ดาวน์โหลดข้อมูลสำรอง"
+            >
+              <Download size={16} />
+              ดาวน์โหลด JSON
             </button>
           </div>
         </section>
