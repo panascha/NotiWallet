@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import AuthGate from "@/components/AuthGate";
 import { getGasUrl } from "@/utils/storage";
-import { ArrowLeft, Copy, Check } from "lucide-react";
+import { ArrowLeft, Copy, Check, ExternalLink } from "lucide-react";
 
 export default function ShortcutsPage() {
   return (
@@ -86,6 +86,25 @@ function ShortcutsContent({ user }) {
       </header>
 
       <main className="px-4 pt-4 max-w-lg mx-auto">
+        {/* Quick install card */}
+        <div className="glass p-4 mb-4 border-amber-400/20 bg-amber-400/[0.04]">
+          <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">ติดตั้ง Shortcut สำเร็จรูป</p>
+          <a
+            href="https://www.icloud.com/shortcuts/4da3406b3466462ba405ab4cbc7525c3"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-4 py-3 rounded-xl bg-lime-400/10 border border-lime-400/30 text-lime-300 text-sm pressable mb-4"
+          >
+            <span className="font-medium">เพิ่ม Shortcut ลง iPhone</span>
+            <ExternalLink size={15} />
+          </a>
+          <p className="text-xs text-slate-400 mb-1">
+            หลังติดตั้งแล้ว แก้ค่าเดียวในขั้นตอน <span className="text-slate-300 font-medium">Get Contents of URL</span>{" "}
+            — เปลี่ยนแค่ <code className="text-amber-300/90">userId</code> เป็นค่าของคุณ:
+          </p>
+          <CopyBlock label="User ID ของคุณ" value={user.uid} />
+        </div>
+
         {/* Intro */}
         <div className="glass p-4 mb-4 border-lime-400/15 bg-lime-400/[0.04]">
           <p className="text-sm text-slate-300 leading-relaxed">

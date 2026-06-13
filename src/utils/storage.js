@@ -153,6 +153,15 @@ export function saveHideBalances(bool) {
   localStorage.setItem("nw_hide_balances", bool ? "true" : "false");
 }
 
+export function getShortcutDone() {
+  if (typeof window === "undefined") return true;
+  return localStorage.getItem("nw_shortcut_done") === "true";
+}
+
+export function saveShortcutDone() {
+  localStorage.setItem("nw_shortcut_done", "true");
+}
+
 export function exportCacheAsCSV() {
   if (typeof window === "undefined") return "";
   const COLS = ["id", "date", "type", "amount", "category", "account_id", "recipient", "bank", "note", "source", "reimbursable", "batch_id"];

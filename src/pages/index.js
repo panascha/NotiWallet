@@ -5,8 +5,8 @@ import AuthGate from "@/components/AuthGate";
 import BottomNav from "@/components/BottomNav";
 import { getTransactions } from "@/services/gas.service";
 import { logout } from "@/services/auth.service";
-import { getCategories, getLargeExpenseThreshold, getCachedTxns, setCachedTxns, getBillingCycleStart, getHideBalances } from "@/utils/storage";
-import { LogOut, TrendingDown, TrendingUp, ChevronRight, Plus, Settings } from "lucide-react";
+import { getCategories, getLargeExpenseThreshold, getCachedTxns, setCachedTxns, getBillingCycleStart, getHideBalances, getShortcutDone, saveShortcutDone } from "@/utils/storage";
+import { LogOut, TrendingDown, TrendingUp, ChevronRight, Plus, Settings, Copy, Check, ExternalLink } from "lucide-react";
 
 const MONTH_LABELS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
@@ -110,6 +110,86 @@ function DonutChart({ segments, total, hideAmount }) {
         ปกติ
       </text>
     </svg>
+  );
+}
+
+function ShortcutSetupBanner({ userId }) {
+  const router = useRouter();
+  const [done, setDone] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => { setDone(getShortcutDone()); }, []);
+
+  function dismiss() { saveShortcutDone(); setDone(true); }
+
+  function copy() {
+    navigator.clipboard.writeText(userId).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  if (done) return null;
+
+  if (!expanded) {
+    return (
+      <div className="glass p-4 border-amber-400/20 bg-amber-400/[0.04] animate-fade-up">
+        <p className="text-sm font-medium text-slate-200 mb-3">ตั้งค่า iOS Shortcut แล้วหรือยัง?</p>
+        <div className="flex gap-2">
+          <button onClick={dismiss} className="flex-1 btn-ghost text-sm py-2 border border-white/10 rounded-xl">
+            ตั้งค่าแล้ว ✓
+          </button>
+          <button onClick={() => setExpanded(true)} className="flex-1 text-sm py-2 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-300 pressable">
+            ยังไม่ได้
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass p-4 border-amber-400/20 bg-amber-400/[0.04] animate-fade-up space-y-3">
+      <p className="text-sm font-medium text-slate-200">ตั้งค่า iOS Shortcut</p>
+
+      <div className="space-y-1.5">
+        <p className="text-xs text-slate-400">1. กดปุ่มนี้เพื่อเพิ่ม Shortcut ลง iPhone</p>
+        <a
+          href="https://www.icloud.com/shortcuts/4da3406b3466462ba405ab4cbc7525c3"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-lime-400/10 border border-lime-400/30 text-lime-300 text-sm pressable"
+        >
+          <span>เพิ่ม Shortcut ลง iPhone</span>
+          <ExternalLink size={14} />
+        </a>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-xs text-slate-400">
+          2. เปิด Shortcut → แตะ action <span className="text-slate-300 font-medium">Get Contents of URL</span> → แก้ค่า{" "}
+          <code className="text-amber-300/80">userId</code> เป็น:
+        </p>
+        <div className="glass">
+          <div className="flex items-center justify-between px-3 py-1.5 border-b border-white/[0.06]">
+            <span className="text-[10px] text-slate-500 uppercase tracking-wider">User ID</span>
+            <button onClick={copy} className="flex items-center gap-1.5 text-xs pressable text-lime-400">
+              {copied ? <><Check size={12} />คัดลอกแล้ว</> : <><Copy size={12} />คัดลอก</>}
+            </button>
+          </div>
+          <p className="font-mono text-xs text-slate-300 px-3 py-2.5 break-all select-all">{userId}</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 pt-1">
+        <button onClick={() => router.push("/shortcuts")} className="flex-1 btn-ghost text-xs py-2 border border-white/10 rounded-xl">
+          ดูขั้นตอนทั้งหมด
+        </button>
+        <button onClick={dismiss} className="flex-1 text-xs py-2 rounded-xl bg-lime-400/10 border border-lime-400/30 text-lime-300 pressable">
+          ตั้งค่าเสร็จแล้ว ✓
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -278,6 +358,9 @@ function HomeContent({ user }) {
             className="btn-ghost px-3 py-1.5 text-xl disabled:opacity-30"
           >›</button>
         </div>
+
+        {/* iOS Shortcut setup prompt — shows once until dismissed */}
+        <ShortcutSetupBanner userId={user.uid} />
 
         {/* Summary card */}
         <div className="glass p-5 animate-fade-up">
