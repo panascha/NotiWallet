@@ -87,7 +87,6 @@ function ScanContent({ user }) {
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           className="hidden"
           onChange={handleFile}
           aria-label="เลือกรูปสลิป"
