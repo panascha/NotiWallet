@@ -72,14 +72,7 @@ function ShortcutsContent({ user }) {
     capturedAt: "<<Current Date>>",
   }, null, 2);
 
-  const redirectTemplate =
-    `${appOrigin}/quick-confirm` +
-    `?amount=<<parsed.amount>>` +
-    `&account_id=<<parsed.account_id>>` +
-    `&date=<<parsed.date>>` +
-    `&recipient=<<parsed.recipient>>` +
-    `&dedup_hash=<<parsed.dedup_hash>>` +
-    `&duplicate=<<parsed.duplicate>>`;
+  const quickConfirmBase = `${appOrigin}/quick-confirm`;
 
   return (
     <div className="min-h-dvh pb-16">
@@ -178,21 +171,47 @@ function ShortcutsContent({ user }) {
               <li>• Key: <code className="text-slate-200">parsed</code></li>
               <li>• Dictionary: ผลลัพธ์จาก Step 3</li>
             </ul>
-            <p className="mt-2 text-slate-500">ได้ dictionary ที่มีคีย์: <code className="text-slate-300">amount, account_id, date, recipient, dedup_hash, duplicate</code></p>
+            <p className="mt-2 text-amber-400/80">ข้อความในบล็อก iOS อาจแสดงค่า default เช่น &ldquo;ปุ่ม&rdquo; — แตะตรงนั้นแล้วเปลี่ยนเป็น <code className="text-amber-300">parsed</code></p>
+            <p className="mt-1 text-slate-500">ได้ dictionary ที่มีคีย์: <code className="text-slate-300">amount, account_id, date, recipient, dedup_hash, duplicate</code></p>
           </Step>
 
           {/* Step 5 — open URL */}
           <Step n="5" title="เปิด quick-confirm">
             <p>เพิ่ม action: <span className="text-slate-200 font-medium">Open URLs</span></p>
-            <p className="mt-1 text-slate-500">URL ที่ต้องสร้าง (ต่อ query string จาก dictionary):</p>
-            <CopyBlock label="URL Pattern" value={redirectTemplate} />
-            <p className="mt-2 text-slate-500">แต่ละ <code className="text-lime-400/80">&lt;&lt;parsed.xxx&gt;&gt;</code> คือ <span className="text-slate-200 font-medium">Get Dictionary Value</span> ดึง key นั้นออกมาจากผลลัพธ์ Step 4</p>
+            <p className="mt-2 text-amber-400/80">iOS ไม่แปลง <code>&lt;&lt;…&gt;&gt;</code> จากการ paste — ต้องแทรกตัวแปรด้วยมือทีละตัว</p>
+            <p className="mt-2 text-slate-500">วิธีสร้าง URL:</p>
+            <ol className="mt-1 space-y-2 list-none">
+              <li><span className="text-slate-300 font-medium">1.</span> พิมพ์ base URL ลงในช่อง URL:</li>
+            </ol>
+            <CopyBlock label="Base URL" value={quickConfirmBase} />
+            <ol className="mt-2 space-y-1.5 list-none text-slate-500">
+              <li><span className="text-slate-300 font-medium">2.</span> พิมพ์ <code className="text-slate-300">?amount=</code> ต่อท้าย → แตะแถบตัวแปรเหนือคีย์บอร์ด → เลือกผลลัพธ์จาก Step 4 → แตะตัวแปรนั้น → ตั้ง Key: <code className="text-slate-300">amount</code></li>
+              <li><span className="text-slate-300 font-medium">3.</span> ทำซ้ำกับทุก field โดยพิมพ์ <code className="text-slate-300">&amp;key=</code> แล้วแทรกตัวแปร parsed พร้อม key ตามตาราง:</li>
+            </ol>
+            <div className="mt-2 glass px-3 py-2 space-y-1">
+              {[
+                ["account_id", "account_id"],
+                ["date", "date"],
+                ["recipient", "recipient"],
+                ["dedup_hash", "dedup_hash"],
+                ["duplicate", "duplicate"],
+              ].map(([param, key]) => (
+                <div key={param} className="flex items-center gap-2 text-xs">
+                  <code className="text-slate-400">&amp;{param}=</code>
+                  <span className="text-slate-600">→</span>
+                  <span className="text-slate-300">parsed</span>
+                  <span className="text-slate-600">→ Key:</span>
+                  <code className="text-lime-400/80">{key}</code>
+                </div>
+              ))}
+            </div>
           </Step>
 
           {/* Step 6 — add to home screen */}
           <Step n="6" title="เพิ่มลง Home Screen">
             <p>ใน Shortcuts → แตะ Shortcut NotiWallet ค้างไว้ → <span className="text-slate-200 font-medium">Share</span> → <span className="text-slate-200 font-medium">Add to Home Screen</span></p>
             <p className="mt-1 text-slate-500">ไอคอนจะอยู่บน Home Screen แตะได้ทันทีหลัง copy notification</p>
+            <p className="mt-2 text-slate-500">ต้องการแชร์ให้คนอื่น: แตะ Shortcut ค้างไว้ → Share → <span className="text-slate-300 font-medium">Copy iCloud Link</span> ส่งลิงก์ให้เขากด Add Shortcut แล้วให้เขาแก้ <code className="text-slate-300">userId</code> ใน Step 3 เป็นของตัวเองก็ใช้ได้เลย</p>
           </Step>
 
           {/* Step 7 — test */}
