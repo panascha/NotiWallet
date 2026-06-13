@@ -103,6 +103,12 @@ function ShortcutsContent({ user }) {
             — เปลี่ยนแค่ <code className="text-amber-300/90">userId</code> เป็นค่าของคุณ:
           </p>
           <CopyBlock label="User ID ของคุณ" value={user.uid} />
+          <p className="text-xs text-slate-500 mt-3 mb-1.5">แก้ตรงนี้ใน Shortcut:</p>
+          <img
+            src="/icons/userId.jpg"
+            alt="ตำแหน่งช่อง userId ใน iOS Shortcuts"
+            className="w-full rounded-xl border border-white/10"
+          />
         </div>
 
         {/* Intro */}
